@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xcode-cleaner"
+version = "0.1.0"
+description = "CLI tool to reclaim disk space from Xcode build artifacts, caches, and simulators"
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+    "InquirerPy>=0.3.4",
+]
+
+[project.scripts]
+xcode-cleaner = "xcode_cleaner.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
