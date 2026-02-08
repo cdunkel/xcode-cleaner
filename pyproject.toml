@@ -7,11 +7,31 @@ name = "xcode-cleaner"
 version = "0.1.0"
 description = "CLI tool to reclaim disk space from Xcode build artifacts, caches, and simulators"
 requires-python = ">=3.9"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "cdunkel" }]
+keywords = ["xcode", "macos", "disk-space", "cleanup", "cli", "simulators", "derived-data"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Filesystems",
+]
 dependencies = [
     "click>=8.0",
     "rich>=13.0",
     "InquirerPy>=0.3.4",
 ]
+
+[project.urls]
+Homepage = "https://github.com/cdunkel/xcode-cleaner"
+Repository = "https://github.com/cdunkel/xcode-cleaner"
+Issues = "https://github.com/cdunkel/xcode-cleaner/issues"
 
 [project.scripts]
 xcode-cleaner = "xcode_cleaner.cli:main"
