@@ -4,6 +4,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from xcode_cleaner.constants import Category
 from xcode_cleaner.models import DeletionResult, ScanResult
 from xcode_cleaner.sizes import format_size
 
@@ -16,7 +17,10 @@ def display_scan_result(result: ScanResult) -> None:
         if not scan_cat.items:
             console.print(f"[bold cyan]{scan_cat.category.value}[/bold cyan]")
             if not scan_cat.found:
-                console.print("  [dim]Directory not found — skipped[/dim]")
+                if scan_cat.category == Category.SIMULATORS:
+                    console.print("  [dim]Could not list simulators (xcrun unavailable)[/dim]")
+                else:
+                    console.print("  [dim]Directory not found — skipped[/dim]")
             else:
                 console.print("  [dim]Empty — nothing to clean[/dim]")
             console.print()

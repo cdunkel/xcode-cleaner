@@ -15,7 +15,7 @@ def _scan_flat(category: Category, base: Path) -> list[ScanItem]:
     items: list[ScanItem] = []
     try:
         for entry in sorted(base.iterdir()):
-            if entry.is_dir():
+            if entry.is_dir() and not entry.is_symlink():
                 size = dir_size(entry)
                 items.append(
                     ScanItem(
@@ -37,10 +37,10 @@ def _scan_archives(base: Path) -> list[ScanItem]:
     items: list[ScanItem] = []
     try:
         for date_folder in sorted(base.iterdir()):
-            if not date_folder.is_dir():
+            if not date_folder.is_dir() or date_folder.is_symlink():
                 continue
             for archive in sorted(date_folder.iterdir()):
-                if archive.is_dir() and archive.suffix == ".xcarchive":
+                if archive.is_dir() and not archive.is_symlink() and archive.suffix == ".xcarchive":
                     size = dir_size(archive)
                     items.append(
                         ScanItem(
@@ -59,8 +59,7 @@ def _scan_archives(base: Path) -> list[ScanItem]:
 def scan_category(category: Category) -> ScanCategory:
     """Scan a single category and return results."""
     if category == Category.SIMULATORS:
-        items = list_simulators()
-        found = True  # simctl always "exists"; empty list just means no simulators
+        items, found = list_simulators()
     elif category == Category.ARCHIVES:
         base = CATEGORY_PATHS[Category.ARCHIVES]
         found = base.is_dir()

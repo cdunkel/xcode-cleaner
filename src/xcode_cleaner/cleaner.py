@@ -4,10 +4,14 @@ import shutil
 
 from rich.progress import Progress
 
+from xcode_cleaner.constants import CATEGORY_PATHS
 from xcode_cleaner.display import console
 from xcode_cleaner.models import DeletionResult, ScanItem
 from xcode_cleaner.simulators import delete_simulator
 from xcode_cleaner.sizes import format_size
+
+# Resolved allowed base directories for path validation
+_ALLOWED_BASES = tuple(p.resolve() for p in CATEGORY_PATHS.values())
 
 
 def confirm_deletion(items: list[ScanItem]) -> bool:
@@ -33,7 +37,18 @@ def delete_items(items: list[ScanItem]) -> list[DeletionResult]:
                     # Simulator — use simctl
                     delete_simulator(item.item_id)
                 elif item.path is not None:
-                    shutil.rmtree(item.path)
+                    if item.path.is_symlink():
+                        item.path.unlink()
+                    else:
+                        resolved = item.path.resolve()
+                        if not any(
+                            resolved == base or str(resolved).startswith(str(base) + "/")
+                            for base in _ALLOWED_BASES
+                        ):
+                            raise ValueError(
+                                f"Refusing to delete {resolved}: outside expected Xcode directories"
+                            )
+                        shutil.rmtree(item.path)
                 else:
                     raise ValueError("Item has no path or item_id")
                 results.append(DeletionResult(item=item, success=True))

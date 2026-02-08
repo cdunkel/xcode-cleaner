@@ -7,8 +7,13 @@ from xcode_cleaner.constants import Category
 from xcode_cleaner.models import ScanItem
 
 
-def list_simulators() -> list[ScanItem]:
-    """List all simulators via xcrun simctl and return ScanItems."""
+def list_simulators() -> tuple[list[ScanItem], bool]:
+    """List all simulators via xcrun simctl and return (items, success).
+
+    The bool indicates whether the scan succeeded. False means xcrun was
+    unavailable or timed out — callers can distinguish "no simulators"
+    from "couldn't check."
+    """
     try:
         result = subprocess.run(
             ["xcrun", "simctl", "list", "devices", "--json"],
@@ -17,17 +22,17 @@ def list_simulators() -> list[ScanItem]:
             timeout=30,
         )
     except FileNotFoundError:
-        return []
+        return [], False
     except subprocess.TimeoutExpired:
-        return []
+        return [], False
 
     if result.returncode != 0:
-        return []
+        return [], False
 
     try:
         data = json.loads(result.stdout)
     except json.JSONDecodeError:
-        return []
+        return [], False
 
     items: list[ScanItem] = []
     for runtime, devices in data.get("devices", {}).items():
@@ -35,6 +40,8 @@ def list_simulators() -> list[ScanItem]:
         runtime_name = runtime.rsplit(".", 1)[-1].replace("-", " ")
         for device in devices:
             udid = device.get("udid", "")
+            if not udid:
+                continue
             name = device.get("name", "Unknown")
             state = device.get("state", "Unknown")
             size_bytes = device.get("dataPathSize", 0) or 0
@@ -48,7 +55,7 @@ def list_simulators() -> list[ScanItem]:
                     metadata={"state": state, "runtime": runtime_name},
                 )
             )
-    return items
+    return items, True
 
 
 def delete_simulator(udid: str) -> None:

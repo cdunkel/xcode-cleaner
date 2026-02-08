@@ -26,10 +26,14 @@ def prompt_selection(result: ScanResult) -> list[ScanItem]:
 
         for item in scan_cat.items:
             items_by_index[index] = item
+            display_name = item.name
+            state = item.metadata.get("state")
+            if state:
+                display_name = f"{display_name} [{state}]"
             choices.append(
                 Choice(
                     value=index,
-                    name=f"{item.name}  ({format_size(item.size_bytes)})",
+                    name=f"{display_name}  ({format_size(item.size_bytes)})",
                     enabled=False,
                 )
             )
