@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from xcode_cleaner.constants import CATEGORY_PATHS, Category
+from xcode_cleaner.constants import CATEGORY_PATHS, DEVICE_SUPPORT_PATHS, Category
 from xcode_cleaner.models import ScanCategory, ScanItem, ScanResult
 from xcode_cleaner.simulators import list_runtimes, list_simulators
 from xcode_cleaner.sizes import dir_size
@@ -62,6 +62,13 @@ def scan_category(category: Category) -> ScanCategory:
         items, found = list_simulators()
     elif category == Category.SIMULATOR_RUNTIMES:
         items, found = list_runtimes()
+    elif category == Category.DEVICE_SUPPORT:
+        items = []
+        found = False
+        for base in DEVICE_SUPPORT_PATHS:
+            if base.is_dir():
+                found = True
+                items.extend(_scan_flat(category, base))
     elif category == Category.ARCHIVES:
         base = CATEGORY_PATHS[Category.ARCHIVES]
         found = base.is_dir()

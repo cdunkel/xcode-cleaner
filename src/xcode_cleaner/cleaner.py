@@ -4,14 +4,16 @@ import shutil
 
 from rich.progress import Progress
 
-from xcode_cleaner.constants import CATEGORY_PATHS, Category
+from xcode_cleaner.constants import CATEGORY_PATHS, DEVICE_SUPPORT_PATHS, Category
 from xcode_cleaner.display import console
 from xcode_cleaner.models import DeletionResult, ScanItem
 from xcode_cleaner.simulators import delete_runtime, delete_simulator
 from xcode_cleaner.sizes import format_size
 
 # Resolved allowed base directories for path validation
-_ALLOWED_BASES = tuple(p.resolve() for p in CATEGORY_PATHS.values())
+_ALLOWED_BASES = tuple(
+    p.resolve() for p in (*CATEGORY_PATHS.values(), *DEVICE_SUPPORT_PATHS)
+)
 
 
 def confirm_deletion(items: list[ScanItem]) -> bool:
