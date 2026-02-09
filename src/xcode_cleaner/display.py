@@ -17,8 +17,8 @@ def display_scan_result(result: ScanResult) -> None:
         if not scan_cat.items:
             console.print(f"[bold cyan]{scan_cat.category.value}[/bold cyan]")
             if not scan_cat.found:
-                if scan_cat.category == Category.SIMULATORS:
-                    console.print("  [dim]Could not list simulators (xcrun unavailable)[/dim]")
+                if scan_cat.category in (Category.SIMULATORS, Category.SIMULATOR_RUNTIMES):
+                    console.print("  [dim]Could not list (xcrun unavailable)[/dim]")
                 else:
                     console.print("  [dim]Directory not found — skipped[/dim]")
             else:

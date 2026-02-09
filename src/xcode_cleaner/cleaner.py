@@ -4,10 +4,10 @@ import shutil
 
 from rich.progress import Progress
 
-from xcode_cleaner.constants import CATEGORY_PATHS
+from xcode_cleaner.constants import CATEGORY_PATHS, Category
 from xcode_cleaner.display import console
 from xcode_cleaner.models import DeletionResult, ScanItem
-from xcode_cleaner.simulators import delete_simulator
+from xcode_cleaner.simulators import delete_runtime, delete_simulator
 from xcode_cleaner.sizes import format_size
 
 # Resolved allowed base directories for path validation
@@ -34,8 +34,10 @@ def delete_items(items: list[ScanItem]) -> list[DeletionResult]:
         for item in items:
             try:
                 if item.item_id is not None:
-                    # Simulator — use simctl
-                    delete_simulator(item.item_id)
+                    if item.category == Category.SIMULATOR_RUNTIMES:
+                        delete_runtime(item.item_id)
+                    else:
+                        delete_simulator(item.item_id)
                 elif item.path is not None:
                     if item.path.is_symlink():
                         item.path.unlink()
