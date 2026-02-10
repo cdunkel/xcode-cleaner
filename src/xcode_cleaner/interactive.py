@@ -24,16 +24,36 @@ def prompt_selection(result: ScanResult) -> list[ScanItem]:
             )
         )
 
+        # Compute column widths for alignment within this category
+        name_width = 0
+        state_width = 0
+        size_width = 0
+        for item in scan_cat.items:
+            name_width = max(name_width, len(item.name))
+            state = item.metadata.get("state", "")
+            if state:
+                state_width = max(state_width, len(f"[{state}]"))
+            size_width = max(size_width, len(format_size(item.size_bytes)))
+
         for item in scan_cat.items:
             items_by_index[index] = item
-            display_name = item.name
-            state = item.metadata.get("state")
-            if state:
-                display_name = f"{display_name} [{state}]"
+            state = item.metadata.get("state", "")
+            state_str = f"[{state}]" if state else ""
+            size_str = format_size(item.size_bytes)
+
+            name_col = item.name.ljust(name_width)
+            state_col = state_str.ljust(state_width) if state_width else ""
+            size_col = size_str.rjust(size_width)
+
+            parts = [name_col]
+            if state_width:
+                parts.append(state_col)
+            parts.append(size_col)
+
             choices.append(
                 Choice(
                     value=index,
-                    name=f"{display_name}  ({format_size(item.size_bytes)})",
+                    name="  ".join(parts),
                     enabled=False,
                 )
             )
